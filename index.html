@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Videollamada WebRTC Real</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Biblioteca PeerJS para conexión Peer-to-Peer -->
+  <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+</head>
+<body class="bg-gray-900 text-white flex flex-col justify-between min-h-screen p-4">
+
+  <header class="text-center py-2 border-b border-gray-800">
+    <h1 class="text-xl font-bold text-indigo-400">P2P Video Call</h1>
+    <p id="my-id-display" class="text-sm text-gray-400 mt-1">Conectando al servidor...</p>
+  </header>
+
+  <!-- Panel de Control de Conexión -->
+  <div class="max-w-md mx-auto my-4 w-full bg-gray-800 p-4 rounded-xl flex gap-2 shadow-lg">
+    <input id="remote-id-input" type="text" placeholder="Pega el ID de tu amiga aquí" class="flex-1 px-3 py-2 bg-gray-700 text-white rounded-lg outline-none focus:ring-2 focus:ring-indigo-500 text-sm">
+    <button onclick="llamarAmiga()" class="bg-indigo-600 hover:bg-indigo-500 font-semibold px-4 py-2 rounded-lg text-sm transition">Llamar</button>
+  </div>
+
+  <!-- Rejilla de Videos -->
+  <main class="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4 max-w-5xl mx-auto w-full items-center">
+    <!-- Tu Video -->
+    <div class="relative bg-gray-800 rounded-2xl overflow-hidden aspect-video shadow-xl border border-gray-700">
+      <video id="local-video" autoplay playsinline muted class="w-full h-full object-cover transform -scale-x-100"></video>
+      <span class="absolute bottom-3 left-3 bg-gray-900/80 backdrop-blur px-3 py-1 rounded-full text-xs font-medium">Tú (Local)</span>
+    </div>
+
+    <!-- Video de tu Amiga -->
+    <div class="relative bg-gray-800 rounded-2xl overflow-hidden aspect-video shadow-xl border border-gray-700 flex items-center justify-center">
+      <video id="remote-video" autoplay playsinline class="w-full h-full object-cover"></video>
+      <div id="placeholder" class="text-gray-500 text-sm text-center p-4">Esperando que conectes con tu amiga...</div>
+      <span class="absolute bottom-3 left-3 bg-gray-900/80 backdrop-blur px-3 py-1 rounded-full text-xs font-medium">Amiga (Remoto)</span>
+    </div>
+  </main>
+
+  <script>
+    let localStream;
+    let peer;
+
+    // 1. Iniciar cámara local al cargar la página
+    navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+      .then(stream => {
+        localStream = stream;
+        document.getElementById('local-video').srcObject = stream;
+        iniciarPeer();
+      })
+      .catch(err => {
+        alert("Error al acceder a la cámara y micrófono: " + err.message);
+      });
+
+    // 2. Inicializar conexión PeerJS
+    function iniciarPeer() {
+      peer = new Peer();
+
+      peer.on('open', id => {
+        document.getElementById('my-id-display').innerHTML = 
+          `Tu ID: <b class="text-indigo-300 font-mono select-all bg-gray-800 px-2 py-1 rounded">${id}</b> (Cópialo y envíaselo a tu amiga)`;
+      });
+
+      // Escuchar cuando tu amiga te llame a ti
+      peer.on('call', call => {
+        call.answer(localStream); // Responder con tu stream
+        call.on('stream', remoteStream => {
+          mostrarVideoRemoto(remoteStream);
+        });
+      });
+    }
+
+    // 3. Función para llamar a tu amiga usando su ID
+    function llamarAmiga() {
+      const remoteId = document.getElementById('remote-id-input').value.trim();
+      if (!remoteId) return alert("Por favor ingresa el ID de tu amiga.");
+
+      const call = peer.call(remoteId, localStream);
+      call.on('stream', remoteStream => {
+        mostrarVideoRemoto(remoteStream);
+      });
+    }
+
+    function mostrarVideoRemoto(stream) {
+      document.getElementById('placeholder').style.display = 'none';
+      document.getElementById('remote-video').srcObject = stream;
+    }
+  </script>
+</body>
+</html>
