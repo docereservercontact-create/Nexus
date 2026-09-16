@@ -31,7 +31,7 @@
 </head>
 <body class="bg-docere-bgLight text-docere-textDark flex flex-col justify-between min-h-screen font-sans antialiased">
 
-  <!-- Top Announcement Bar (Inspirado en la cabecera) -->
+  <!-- Top Announcement Bar -->
   <div class="bg-gradient-to-r from-docere-topbarStart via-docere-bluePrimary to-docere-topbarEnd text-white text-xs sm:text-sm py-2 px-4 text-center font-medium shadow-sm flex items-center justify-center gap-2">
     <span>✨ <b>Docere Live:</b> Sala de Videollamadas e Interacción en Vivo</span>
   </div>
@@ -39,7 +39,6 @@
   <!-- Header Principal -->
   <header class="bg-white border-b border-blue-100 py-3 px-4 sm:px-8 flex justify-between items-center shadow-sm sticky top-0 z-50">
     <div class="flex items-center space-x-2">
-      <!-- Logo DOCÉRE con el icono del globo / estilo de la marca -->
       <span class="text-2xl sm:text-3xl font-black tracking-widest text-slate-900 flex items-center gap-1">
         D<span class="text-docere-bluePrimary">O</span>CÉRE
       </span>
@@ -55,7 +54,7 @@
 
   <main class="flex-1 max-w-6xl w-full mx-auto p-4 sm:p-6 flex flex-col gap-6 justify-center">
 
-    <!-- Panel de Conexión & ID Corto -->
+    <!-- Panel de Conexión -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-white border border-blue-100 p-5 rounded-2xl shadow-md">
       
       <!-- Mi Código -->
@@ -69,12 +68,12 @@
             Copiar
           </button>
         </div>
-        <p class="text-xs text-slate-500 mt-2">Comparte este código de 6 caracteres con tu amiga.</p>
+        <p class="text-xs text-slate-500 mt-2">Comparte este código de 6 caracteres con el participante.</p>
       </div>
 
-      <!-- Conectarse a Amiga -->
+      <!-- Conectarse -->
       <div class="flex flex-col justify-center pt-2 md:pt-0">
-        <label class="text-xs uppercase font-bold text-docere-bluePrimary tracking-wider mb-1">Ingresar Código de tu Amiga</label>
+        <label class="text-xs uppercase font-bold text-docere-bluePrimary tracking-wider mb-1">Ingresar Código Remoto</label>
         <div class="flex gap-2">
           <input id="remote-id-input" type="text" placeholder="Ej: 7X9K2P" maxlength="6" class="uppercase font-mono font-bold tracking-wider flex-1 px-4 py-2 bg-slate-50 border border-slate-200 focus:border-docere-bluePrimary focus:bg-white rounded-xl text-slate-800 outline-none text-sm transition">
           <button onclick="llamarAmiga()" class="bg-docere-greenWhatsapp hover:opacity-90 text-white font-bold px-6 py-2 rounded-xl transition shadow-md shadow-emerald-500/10 text-sm active:scale-95 flex items-center gap-2">
@@ -102,7 +101,7 @@
 
       <!-- Video Remoto -->
       <div class="relative bg-slate-900 rounded-2xl overflow-hidden aspect-video shadow-lg border-2 border-white flex items-center justify-center w-full">
-        <video id="remote-video" autoplay playsinline class="w-full h-full object-cover"></video>
+        <video id="remote-video" autoplay playsinline class="w-full h-full object-cover hidden"></video>
         
         <div id="placeholder" class="text-center p-6 flex flex-col items-center gap-3">
           <div class="w-14 h-14 rounded-full bg-docere-bgLight border border-blue-200 flex items-center justify-center text-docere-bluePrimary">
@@ -119,23 +118,20 @@
 
     </div>
 
-    <!-- Barra de Controles Estilo Docere -->
+    <!-- Barra de Controles -->
     <div class="flex justify-center items-center gap-2 sm:gap-4 py-2">
-      <!-- Botón Micrófono -->
       <button id="btn-audio" onclick="toggleAudio()" class="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 sm:px-6 py-3 rounded-xl bg-white hover:bg-slate-50 text-slate-700 font-bold border border-slate-200 transition shadow-sm text-xs sm:text-sm active:scale-95">
         <svg id="icon-mic-on" class="w-5 h-5 text-docere-greenWhatsapp shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 016 0v6a3 3 0 01-3 3z"></path></svg>
         <svg id="icon-mic-off" class="w-5 h-5 text-red-500 hidden shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" clip-rule="evenodd"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2"></path></svg>
         <span id="label-mic" class="truncate">Micrófono</span>
       </button>
 
-      <!-- Botón Cámara -->
       <button id="btn-video" onclick="toggleVideo()" class="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 sm:px-6 py-3 rounded-xl bg-white hover:bg-slate-50 text-slate-700 font-bold border border-slate-200 transition shadow-sm text-xs sm:text-sm active:scale-95">
         <svg id="icon-cam-on" class="w-5 h-5 text-docere-bluePrimary shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
         <svg id="icon-cam-off" class="w-5 h-5 text-red-500 hidden shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path></svg>
         <span id="label-cam" class="truncate">Cámara</span>
       </button>
 
-      <!-- Botón Compartir Pantalla -->
       <button id="btn-screen" onclick="toggleScreenShare()" class="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 sm:px-6 py-3 rounded-xl bg-docere-bluePrimary hover:opacity-90 text-white font-bold transition shadow-md shadow-blue-500/10 text-xs sm:text-sm active:scale-95">
         <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
         <span id="label-screen" class="truncate">Pantalla</span>
@@ -167,11 +163,7 @@
     }
 
     const constraints = {
-      video: {
-        width: { ideal: 1280 },
-        height: { ideal: 720 },
-        facingMode: "user"
-      },
+      video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: "user" },
       audio: true
     };
 
@@ -182,7 +174,8 @@
         iniciarPeer();
       })
       .catch(err => {
-        alert("Asegúrate de permitir el acceso a tu cámara y micrófono.");
+        console.error(err);
+        alert("Atención: Debes dar permisos de Cámara y Micrófono para usar esta aplicación.");
       });
 
     function iniciarPeer() {
@@ -196,45 +189,73 @@
         statusBadge.className = 'text-xs px-3 py-1.5 rounded-full bg-emerald-50 text-docere-greenWhatsapp border border-emerald-200 font-bold';
       });
 
+      // Manejar llamadas ENTRANTES
       peer.on('call', call => {
         currentCall = call;
         call.answer(localStream);
+        
         call.on('stream', remoteStream => {
           mostrarVideoRemoto(remoteStream);
         });
+
+        call.on('close', () => {
+          limpiarVideoRemoto();
+        });
+      });
+
+      peer.on('error', err => {
+        console.error("Error en PeerJS:", err);
+        if (err.type === 'peer-unavailable') {
+          alert('El código ingresado no existe o la sala se cerró.');
+        }
       });
     }
 
+    // Manejar llamadas SALIENTES
     function llamarAmiga() {
       const input = document.getElementById('remote-id-input');
       const remoteId = input.value.trim().toUpperCase();
 
-      if (!remoteId) {
-        alert("Ingresa el código corto de 6 caracteres.");
+      if (!remoteId || remoteId.length !== 6) {
+        alert("Ingresa un código válido de 6 caracteres.");
         return;
       }
 
       currentCall = peer.call(remoteId, localStream);
+
       currentCall.on('stream', remoteStream => {
         mostrarVideoRemoto(remoteStream);
+      });
+
+      currentCall.on('close', () => {
+        limpiarVideoRemoto();
       });
     }
 
     function mostrarVideoRemoto(stream) {
+      const remoteVideo = document.getElementById('remote-video');
       document.getElementById('placeholder').classList.add('hidden');
       document.getElementById('remote-label').classList.remove('hidden');
-      document.getElementById('remote-video').srcObject = stream;
+      remoteVideo.classList.remove('hidden');
+      remoteVideo.srcObject = stream;
+    }
+
+    function limpiarVideoRemoto() {
+      const remoteVideo = document.getElementById('remote-video');
+      remoteVideo.srcObject = null;
+      remoteVideo.classList.add('hidden');
+      document.getElementById('placeholder').classList.remove('hidden');
+      document.getElementById('remote-label').classList.add('hidden');
     }
 
     function copiarID() {
       const id = document.getElementById('my-id-display').innerText;
       if (id !== '------') {
-        navigator.clipboard.writeText(id);
-        alert('Código de sala copiado: ' + id);
+        navigator.clipboard.writeText(id).then(() => {
+          alert('Código copiado al portapapeles: ' + id);
+        });
       }
     }
-
-    // --- Control de Micrófono & Cámara ---
 
     function toggleAudio() {
       if (!localStream) return;
@@ -269,11 +290,9 @@
       }
     }
 
-    // --- Compartir Pantalla ---
-
     async function toggleScreenShare() {
       if (!navigator.mediaDevices || !navigator.mediaDevices.getDisplayMedia) {
-        alert("Tu navegador actual no soporta compartir pantalla. Abre este enlace en Chrome/Safari directamente.");
+        alert("Tu navegador o dispositivo actual no soporta compartir pantalla.");
         return;
       }
 
@@ -303,7 +322,7 @@
 
         } catch (err) {
           if (err.name !== 'NotAllowedError') {
-            alert("No se pudo compartir pantalla.");
+            console.error(err);
           }
         }
       } else {
