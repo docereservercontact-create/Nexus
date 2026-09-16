@@ -3,45 +3,159 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Videollamada WebRTC Real</title>
+  <title>Videollamada Docere</title>
+  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Biblioteca PeerJS para conexión Peer-to-Peer -->
+  <!-- PeerJS -->
   <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              navy: '#0B192C',
+              darkBlue: '#1E3E62',
+              teal: '#00ADB5',
+              green: '#10B981',
+              emerald: '#059669'
+            }
+          }
+        }
+      }
+    }
+  </script>
 </head>
-<body class="bg-gray-900 text-white flex flex-col justify-between min-h-screen p-4">
+<body class="bg-brand-navy text-slate-100 flex flex-col justify-between min-h-screen font-sans">
 
-  <header class="text-center py-2 border-b border-gray-800">
-    <h1 class="text-xl font-bold text-indigo-400">P2P Video Call</h1>
-    <p id="my-id-display" class="text-sm text-gray-400 mt-1">Conectando al servidor...</p>
+  <!-- Header -->
+  <header class="border-b border-brand-darkBlue bg-slate-900/50 backdrop-blur py-4 px-6 flex justify-between items-center shadow-md">
+    <div class="flex items-center space-x-2">
+      <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-brand-emerald to-brand-teal flex items-center justify-center font-bold text-white shadow-lg">
+        D
+      </div>
+      <span class="text-xl font-extrabold tracking-wide bg-gradient-to-r from-brand-teal to-brand-green bg-clip-text text-transparent">
+        Docere Call
+      </span>
+    </div>
+    <div id="status-badge" class="text-xs px-3 py-1 rounded-full bg-slate-800 text-slate-400 border border-slate-700">
+      Conectando servidor...
+    </div>
   </header>
 
-  <!-- Panel de Control de Conexión -->
-  <div class="max-w-md mx-auto my-4 w-full bg-gray-800 p-4 rounded-xl flex gap-2 shadow-lg">
-    <input id="remote-id-input" type="text" placeholder="Pega el ID de tu amiga aquí" class="flex-1 px-3 py-2 bg-gray-700 text-white rounded-lg outline-none focus:ring-2 focus:ring-indigo-500 text-sm">
-    <button onclick="llamarAmiga()" class="bg-indigo-600 hover:bg-indigo-500 font-semibold px-4 py-2 rounded-lg text-sm transition">Llamar</button>
-  </div>
+  <main class="flex-1 max-w-6xl w-full mx-auto p-4 flex flex-col gap-6">
 
-  <!-- Rejilla de Videos -->
-  <main class="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4 max-w-5xl mx-auto w-full items-center">
-    <!-- Tu Video -->
-    <div class="relative bg-gray-800 rounded-2xl overflow-hidden aspect-video shadow-xl border border-gray-700">
-      <video id="local-video" autoplay playsinline muted class="w-full h-full object-cover transform -scale-x-100"></video>
-      <span class="absolute bottom-3 left-3 bg-gray-900/80 backdrop-blur px-3 py-1 rounded-full text-xs font-medium">Tú (Local)</span>
+    <!-- Panel de Conexión & ID Corto -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-900/80 border border-brand-darkBlue p-5 rounded-2xl shadow-xl">
+      
+      <!-- Mi ID -->
+      <div class="flex flex-col justify-center border-b md:border-b-0 md:border-r border-slate-800 pb-4 md:pb-0 md:pr-4">
+        <label class="text-xs uppercase font-semibold text-brand-teal tracking-wider mb-1">Tu Código de Sala</label>
+        <div class="flex items-center gap-2">
+          <span id="my-id-display" class="font-mono text-2xl font-bold text-brand-green bg-slate-950 px-4 py-2 rounded-xl border border-brand-emerald/30 tracking-wider">
+            ------
+          </span>
+          <button onclick="copiarID()" class="bg-brand-darkBlue hover:bg-slate-700 text-xs px-3 py-2 rounded-lg border border-slate-600 transition">
+            Copiar
+          </button>
+        </div>
+        <p class="text-xs text-slate-400 mt-2">Comparte este código de 6 caracteres con tu amiga.</p>
+      </div>
+
+      <!-- Conectarse a Amiga -->
+      <div class="flex flex-col justify-center pt-2 md:pt-0">
+        <label class="text-xs uppercase font-semibold text-brand-teal tracking-wider mb-1">Ingresar Código de tu Amiga</label>
+        <div class="flex gap-2">
+          <input id="remote-id-input" type="text" placeholder="Ej: 7X9K2P" maxlength="6" class="uppercase font-mono tracking-wider flex-1 px-4 py-2 bg-slate-950 border border-slate-700 focus:border-brand-teal rounded-xl text-white outline-none">
+          <button onclick="llamarAmiga()" class="bg-gradient-to-r from-brand-teal to-brand-emerald hover:opacity-90 font-bold px-6 py-2 rounded-xl text-slate-950 transition shadow-lg shadow-brand-teal/20">
+            Unirse
+          </button>
+        </div>
+      </div>
+
     </div>
 
-    <!-- Video de tu Amiga -->
-    <div class="relative bg-gray-800 rounded-2xl overflow-hidden aspect-video shadow-xl border border-gray-700 flex items-center justify-center">
-      <video id="remote-video" autoplay playsinline class="w-full h-full object-cover"></video>
-      <div id="placeholder" class="text-gray-500 text-sm text-center p-4">Esperando que conectes con tu amiga...</div>
-      <span class="absolute bottom-3 left-3 bg-gray-900/80 backdrop-blur px-3 py-1 rounded-full text-xs font-medium">Amiga (Remoto)</span>
+    <!-- Video Grid -->
+    <div class="flex-1 grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+      
+      <!-- Mi Video -->
+      <div class="relative bg-slate-950 rounded-2xl overflow-hidden aspect-video shadow-2xl border border-brand-darkBlue group">
+        <video id="local-video" autoplay playsinline muted class="w-full h-full object-cover transform -scale-x-100"></video>
+        <div id="video-off-overlay" class="hidden absolute inset-0 bg-slate-900 flex items-center justify-center text-slate-500 text-sm font-medium">
+          Cámara Desactivada
+        </div>
+        <div class="absolute bottom-3 left-3 bg-slate-900/80 backdrop-blur border border-slate-700/50 px-3 py-1 rounded-full text-xs font-medium text-brand-teal flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-brand-green animate-pulse"></span>
+          <span id="local-label-text">Tú (Cámara local)</span>
+        </div>
+      </div>
+
+      <!-- Video Remoto -->
+      <div class="relative bg-slate-950 rounded-2xl overflow-hidden aspect-video shadow-2xl border border-brand-darkBlue flex items-center justify-center">
+        <video id="remote-video" autoplay playsinline class="w-full h-full object-cover"></video>
+        
+        <div id="placeholder" class="text-center p-6 flex flex-col items-center gap-3">
+          <div class="w-16 h-16 rounded-full bg-brand-darkBlue/50 border border-brand-teal/30 flex items-center justify-center text-brand-teal">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+          </div>
+          <p class="text-slate-400 text-sm max-w-xs">Esperando que ingreses un código o que alguien se una a la sala...</p>
+        </div>
+
+        <div id="remote-label" class="hidden absolute bottom-3 left-3 bg-slate-900/80 backdrop-blur border border-slate-700/50 px-3 py-1 rounded-full text-xs font-medium text-brand-green flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-brand-green"></span>
+          Conectado
+        </div>
+      </div>
+
     </div>
+
+    <!-- Barra de Controles (Micrófono / Cámara / Compartir Pantalla) -->
+    <div class="flex flex-wrap justify-center items-center gap-4 py-2">
+      <!-- Botón Micrófono -->
+      <button id="btn-audio" onclick="toggleAudio()" class="flex items-center gap-2 px-5 py-3 rounded-xl bg-brand-darkBlue hover:bg-slate-700 text-white font-medium border border-slate-600 transition shadow-lg">
+        <svg id="icon-mic-on" class="w-5 h-5 text-brand-green" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 016 0v6a3 3 0 01-3 3z"></path></svg>
+        <svg id="icon-mic-off" class="w-5 h-5 text-red-400 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" clip-rule="evenodd"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2"></path></svg>
+        <span id="label-mic" class="text-sm">Micrófono Encendido</span>
+      </button>
+
+      <!-- Botón Cámara -->
+      <button id="btn-video" onclick="toggleVideo()" class="flex items-center gap-2 px-5 py-3 rounded-xl bg-brand-darkBlue hover:bg-slate-700 text-white font-medium border border-slate-600 transition shadow-lg">
+        <svg id="icon-cam-on" class="w-5 h-5 text-brand-teal" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+        <svg id="icon-cam-off" class="w-5 h-5 text-red-400 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path></svg>
+        <span id="label-cam" class="text-sm">Cámara Encendida</span>
+      </button>
+
+      <!-- Botón Compartir Pantalla -->
+      <button id="btn-screen" onclick="toggleScreenShare()" class="flex items-center gap-2 px-5 py-3 rounded-xl bg-brand-darkBlue hover:bg-slate-700 text-white font-medium border border-slate-600 transition shadow-lg">
+        <svg class="w-5 h-5 text-brand-teal" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+        <span id="label-screen" class="text-sm">Compartir Pantalla</span>
+      </button>
+    </div>
+
   </main>
+
+  <footer class="text-center py-4 text-xs text-slate-500 border-t border-slate-900">
+    Desarrollado para <a href="https://cursosdocere.com" target="_blank" class="text-brand-teal hover:underline">cursosdocere.com</a>
+  </footer>
 
   <script>
     let localStream;
+    let currentCall = null;
     let peer;
+    let audioEnabled = true;
+    let videoEnabled = true;
+    let isSharingScreen = false;
+    let screenStream = null;
 
-    // 1. Iniciar cámara local al cargar la página
+    function generarIDCorto() {
+      const caracteres = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+      let resultado = '';
+      for (let i = 0; i < 6; i++) {
+        resultado += caracteres.charAt(Math.floor(Math.random() * caracteres.length));
+      }
+      return resultado;
+    }
+
     navigator.mediaDevices.getUserMedia({ video: true, audio: true })
       .then(stream => {
         localStream = stream;
@@ -49,41 +163,163 @@
         iniciarPeer();
       })
       .catch(err => {
-        alert("Error al acceder a la cámara y micrófono: " + err.message);
+        alert("Permiso de cámara/micrófono denegado o no disponible.");
       });
 
-    // 2. Inicializar conexión PeerJS
     function iniciarPeer() {
-      peer = new Peer();
+      const miIDCorto = generarIDCorto();
+      peer = new Peer(miIDCorto);
 
       peer.on('open', id => {
-        document.getElementById('my-id-display').innerHTML = 
-          `Tu ID: <b class="text-indigo-300 font-mono select-all bg-gray-800 px-2 py-1 rounded">${id}</b> (Cópialo y envíaselo a tu amiga)`;
+        document.getElementById('my-id-display').innerText = id;
+        const statusBadge = document.getElementById('status-badge');
+        statusBadge.innerText = '● Servidor listo';
+        statusBadge.className = 'text-xs px-3 py-1 rounded-full bg-brand-emerald/10 text-brand-green border border-brand-green/30';
       });
 
-      // Escuchar cuando tu amiga te llame a ti
       peer.on('call', call => {
-        call.answer(localStream); // Responder con tu stream
+        currentCall = call;
+        call.answer(localStream);
         call.on('stream', remoteStream => {
           mostrarVideoRemoto(remoteStream);
         });
       });
     }
 
-    // 3. Función para llamar a tu amiga usando su ID
     function llamarAmiga() {
-      const remoteId = document.getElementById('remote-id-input').value.trim();
-      if (!remoteId) return alert("Por favor ingresa el ID de tu amiga.");
+      const input = document.getElementById('remote-id-input');
+      const remoteId = input.value.trim().toUpperCase();
 
-      const call = peer.call(remoteId, localStream);
-      call.on('stream', remoteStream => {
+      if (!remoteId) {
+        alert("Ingresa el código corto de 6 caracteres.");
+        return;
+      }
+
+      currentCall = peer.call(remoteId, localStream);
+      currentCall.on('stream', remoteStream => {
         mostrarVideoRemoto(remoteStream);
       });
     }
 
     function mostrarVideoRemoto(stream) {
-      document.getElementById('placeholder').style.display = 'none';
+      document.getElementById('placeholder').classList.add('hidden');
+      document.getElementById('remote-label').classList.remove('hidden');
       document.getElementById('remote-video').srcObject = stream;
+    }
+
+    function copiarID() {
+      const id = document.getElementById('my-id-display').innerText;
+      if (id !== '------') {
+        navigator.clipboard.writeText(id);
+        alert('Código de sala copiado: ' + id);
+      }
+    }
+
+    // --- Control de Micrófono & Cámara ---
+
+    function toggleAudio() {
+      if (!localStream) return;
+      const audioTrack = localStream.getAudioTracks()[0];
+      if (audioTrack) {
+        audioEnabled = !audioEnabled;
+        audioTrack.enabled = audioEnabled;
+
+        document.getElementById('icon-mic-on').classList.toggle('hidden', !audioEnabled);
+        document.getElementById('icon-mic-off').classList.toggle('hidden', audioEnabled);
+        document.getElementById('label-mic').innerText = audioEnabled ? 'Micrófono Encendido' : 'Micrófono Apagado';
+        
+        const btn = document.getElementById('btn-audio');
+        btn.classList.toggle('border-red-500/50', !audioEnabled);
+        btn.classList.toggle('bg-red-950/30', !audioEnabled);
+      }
+    }
+
+    function toggleVideo() {
+      if (!localStream) return;
+      const videoTrack = localStream.getVideoTracks()[0];
+      if (videoTrack) {
+        videoEnabled = !videoEnabled;
+        videoTrack.enabled = videoEnabled;
+
+        document.getElementById('video-off-overlay').classList.toggle('hidden', videoEnabled);
+        document.getElementById('icon-cam-on').classList.toggle('hidden', !videoEnabled);
+        document.getElementById('icon-cam-off').classList.toggle('hidden', videoEnabled);
+        document.getElementById('label-cam').innerText = videoEnabled ? 'Cámara Encendida' : 'Cámara Apagada';
+
+        const btn = document.getElementById('btn-video');
+        btn.classList.toggle('border-red-500/50', !videoEnabled);
+        btn.classList.toggle('bg-red-950/30', !videoEnabled);
+      }
+    }
+
+    // --- Compartir Pantalla ---
+
+    async function toggleScreenShare() {
+      if (!isSharingScreen) {
+        try {
+          // Solicitar captura de pantalla nativa del navegador
+          screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true });
+          const screenTrack = screenStream.getVideoTracks()[0];
+
+          // Reemplazar la pista en la llamada activa enviada al par
+          if (currentCall && currentCall.peerConnection) {
+            const sender = currentCall.peerConnection.getSenders().find(s => s.track.kind === 'video');
+            if (sender) sender.replaceTrack(screenTrack);
+          }
+
+          // Ajustar vista local
+          const localVideo = document.getElementById('local-video');
+          localVideo.srcObject = screenStream;
+          localVideo.classList.remove('-scale-x-100'); // Quitar efecto espejo para leer texto correctamente
+          document.getElementById('local-label-text').innerText = 'Tú (Compartiendo pantalla)';
+
+          // Detectar cuando el usuario presiona "Dejar de compartir" en la barra nativa
+          screenTrack.onended = () => deteniendoPantalla();
+
+          isSharingScreen = true;
+          actualizarBotonPantalla(true);
+
+        } catch (err) {
+          console.error("Error al compartir pantalla:", err);
+        }
+      } else {
+        deteniendoPantalla();
+      }
+    }
+
+    function deteniendoPantalla() {
+      if (screenStream) {
+        screenStream.getTracks().forEach(track => track.stop());
+      }
+
+      const cameraTrack = localStream.getVideoTracks()[0];
+
+      // Restaurar la pista de la cámara en la transmisión
+      if (currentCall && currentCall.peerConnection) {
+        const sender = currentCall.peerConnection.getSenders().find(s => s.track.kind === 'video');
+        if (sender) sender.replaceTrack(cameraTrack);
+      }
+
+      // Restaurar vista local
+      const localVideo = document.getElementById('local-video');
+      localVideo.srcObject = localStream;
+      localVideo.classList.add('-scale-x-100'); // Volver a aplicar espejo para la cámara
+      document.getElementById('local-label-text').innerText = 'Tú (Cámara local)';
+
+      isSharingScreen = false;
+      actualizarBotonPantalla(false);
+    }
+
+    function actualizarBotonPantalla(activa) {
+      const btn = document.getElementById('btn-screen');
+      const label = document.getElementById('label-screen');
+      if (activa) {
+        label.innerText = 'Dejar de Compartir';
+        btn.classList.add('border-brand-green/80', 'bg-brand-emerald/20');
+      } else {
+        label.innerText = 'Compartir Pantalla';
+        btn.classList.remove('border-brand-green/80', 'bg-brand-emerald/20');
+      }
     }
   </script>
 </body>
